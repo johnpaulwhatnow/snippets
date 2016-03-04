@@ -1,0 +1,1 @@
+This project contains snippets I use in a lot of my project.  each snippit has a little documentation to get you started using it. 
