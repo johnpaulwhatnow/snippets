@@ -1,0 +1,15 @@
+{% verbatim %}
+<script id="message-template" type="text/x-handlebars-template">
+  <div class="message">
+	<div class="alert alert-{{type}} alert-dismissible" role="alert">
+	  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	  {{ message }}
+	</div>
+  </div>
+</script>
+<script id="upload-template" type="text/x-handlebars-template">
+  <div class="uploaded-image {{type}}">
+	<img class="img-responsive" src="/{{sub_dir}}{{image}}" />
+  </div>
+</script>
+{% endverbatim %}

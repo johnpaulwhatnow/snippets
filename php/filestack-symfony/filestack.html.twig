@@ -1,0 +1,101 @@
+
+
+<script>
+    $(document).ready(function(){
+        var messenger = Handlebars.compile( $('#message-template').html() );
+        var upload_template = Handlebars.compile( $('#upload-template').html() );
+        function renderImage(filename){
+            //show the image
+            var html = upload_template({
+                image:filename,
+                sub_dir:'{{ sub_dir }}',
+                type:'{{ type }}'
+
+
+            });
+            //remove old photo if it is there
+            //console.log($('.uploaded-image.{{ type }}'));
+            $('.uploaded-image.{{ type }}').remove();
+            $(html).insertBefore('{{ file_id }}');
+            $('{{ file_id }}').html('Update your photo');
+
+        }
+        //if this field has a hidden value for image, let's show it
+        var hidden_val = $('{{ hidden_id }}').attr('value');
+
+        if ( hidden_val !== undefined){
+            renderImage(hidden_val);
+        }
+
+        //things needed for the uploader
+        var picked_file;
+        filepicker.setKey('A5hp5OMERNyYsWISTyimrz');
+        $('form').on('click', '{{ file_id }}', function(){
+           // console.log('hit');
+            filepicker.pick(
+                {
+                    debug:false,
+                    mimetype: 'image/*',
+                    container: 'modal',
+                    services: ['CONVERT','COMPUTER', 'FACEBOOK', 'CLOUDAPP', 'INSTAGRAM', 'GOOGLE_DRIVE', 'FLICKR', 'PICASA'],
+                    maxSize: 1024 * 1024 * 3,
+					conversions:['crop'],
+					{% if ratio is defined %}
+					cropRatio:{{ratio}},
+					{% endif %}
+					{% if cropMin is defined %}
+					cropMin:{{cropMin}}
+					{% endif %}
+                },
+                function(obj){
+
+                    var url = '{{ path("upload") }}';
+
+                    obj.dir = '{{ sub_dir }}';
+
+                    //obj.url = url;
+
+                    $.post(url, obj, function(data){
+                        //console.log(data);
+                        if(data.response == undefined){
+                            //we dont' even have a json response.  something when wrong
+                            var html = messenger({
+                                type:'danger',
+                                message:'There was a problem uploading your photo. Please try again later.'
+                            });
+                            $('{{ message_shell }}').html(html);
+
+
+                        }
+                        else{
+                            //we have a proper response
+                            if(data.response.is_success){
+                                //set a message
+                                var html = messenger({
+                                    type:'success',
+                                    message:'Photo Uploaded'
+                                });
+                                $('{{ message_shell }}').html(html);
+
+                                //show the image
+                                renderImage(data.response.filename);
+                                //add to the hidden field
+                                $('{{ hidden_id  }}').val( data.response.filename );
+                            } else{
+                                var html = messenger({
+                                    type:'danger',
+                                    message:'There was a problem uploading your photo. Please try again later.'
+                                });
+                                $('{{ message_shell }}').html(html);
+                            }
+                        }
+
+                    } );
+                },
+                function(FPError){
+                    //  console.log(FPError.toString()); - print errors to console
+                }
+            );
+        });
+    });
+</script>
